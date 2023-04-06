@@ -1,27 +1,49 @@
-""" must replicate the following code:
-const { Server } = require("socket.io");
-
-const io = new Server();
-
-io.on("connection", (socket) => {
-console.log("New device has been connected with socket.id " + socket.id);
-
-socket.on("send_message", (message, username) => {
-console.log("New message has been sent. Message says: " + message + " and sent from " + username)
-socket.broadcast.emit("new_message", message + "%&##%%@" + username)
-})
-socket.on("message_typing", (username) => {
-console.log(username + " is typing")
-socket.broadcast.emit("message_typing_client", username)
-})
-socket.on("no_message_typing", (username) => {
-console.log(username + " is not typing anymore")
-socket.broadcast.emit("no_message_typing", username)
-})
-});
-
-io.listen(3000);
-console.log("socket.io server listening at *:3000") """
-
 from functions import send, type, receive
+
+# make a prompt that will ask for the ip address and username
+ip_address = input("ip address: ")
+port = int(input("port: "))
+username = input("username: ")
+secure_connection = input("secure connection? (y/n): ")
+if secure_connection == "y":
+    secure_connection = True
+else:
+    secure_connection = False
+
+# create send and type objects
+send = send.Sender(ip_address, port, username, secure_connection)
+typer = type.Typer(ip_address, port, username, secure_connection)
+
+# create a receiver instance
+receive = receive.Receiver(ip_address, port, secure_connection)
+# setup receiver
+receive.setup()
+send.setup()
+typer.setup()
+
+# ask the user what they want to do
+while True:
+    action = input("action: ")
+    if action == "send":
+        send.run()
+    elif action == "type":
+        typer.type()
+    elif action == "untype":
+        typer.untype()
+    elif action == "dc":
+        send.dc()
+        typer.dc()
+    elif action == "exit":
+        send.dc()
+        typer.dc()
+        break
+    else:
+        print("error: invalid action")
+
+# close the connection
+send.dc()
+typer.dc()
+
+
+
 

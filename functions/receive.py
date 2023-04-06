@@ -1,5 +1,4 @@
 import socketio
-import time
 
 
 class Receiver:
@@ -10,6 +9,9 @@ class Receiver:
 
     # this is the status codes for the test
     err = [0]
+
+    # people currently typing
+    people_typing = []
 
     # all the basics required to connect to the server
     def __init__(self, ip_address: str, port: int, secure_connection: bool):
@@ -52,11 +54,16 @@ class Receiver:
             print('disconnected from server')
 
         @self.sio.on("new_message")
-        def on_message(data):
-            main_data: list = data.split("%&##%%@")
-            print(f"{main_data[1]} said: {main_data[0]}")
+        def on_message(message, username, time):
+            print(f"{username} said: {message} at {time}")
+
+        @self.sio.on("user_typing")
+        def on_type(username):
+            print(f"{username} is typing")
+
+        @self.sio.on("user_not_typing")
+        def on_type(username):
+            print(f"{username} is not typing")
 
     def dc(self):
         self.sio.disconnect()
-
-

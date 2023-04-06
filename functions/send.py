@@ -36,8 +36,8 @@ class Sender:
         try:
             print("attempting message sending, waiting 5 seconds.")
             while self.running:
-                current_time = time.time()
-                self.sio.emit('send_message', (f'message was able to send at {current_time}', 'test_user'))
+                current_time = int(time.time())
+                self.sio.emit('send_message', (f'message was able to send at {current_time}', self.username, current_time))
                 if self.error:
                     self.error = False
                     print("there was an error: successful count is now 0")
